@@ -1,6 +1,9 @@
 //--------------------------------------------------------------------
 //FFT CODE
 //--------------------------------------------------------------------
+
+var nomute = true;
+
 var FFT = function (bufferSize, sampleRate) {
         this.bufferSize = bufferSize;
         this.sampleRate = sampleRate;
@@ -204,7 +207,11 @@ generateHtml = function(container) {
 	var containerTracks = container.find('.tracks');
 	audioTags.each(function(i){
 		var randomColor = get_random_color();
-		containerTracks.append('<li class="track"><ul class="control"><li class="mute"><a href="javascript://">mute</a></li><li class="solo"><a href="javascript://"><span></span></a></li></ul><span class="status"></span><audio index="'+i+'" container="'+containerID+'" color="'+randomColor+'" preload="auto" '+srcAttr+'="'+$(this).attr("url")+'"></audio><span class="track-name">'+$(this).attr("name")+'</span>'+($.browser.mozilla ? '<span class="color" style="background-color:'+randomColor+'"></span>':"")+'</li>');
+		if (nomute == true) {
+			containerTracks.append('<li class="track"><ul class="control"><li class="solo"><a href="javascript://"><span></span></a></li></ul><span class="status"></span><audio index="'+i+'" container="'+containerID+'" color="'+randomColor+'" preload="auto" '+srcAttr+'="'+$(this).attr("url")+'"></audio><span class="track-name">'+$(this).attr("name")+'</span>'+($.browser.mozilla ? '<span class="color" style="background-color:'+randomColor+'"></span>':"")+'</li>');
+		} else {
+			containerTracks.append('<li class="track"><ul class="control"><li class="mute"><a href="javascript://">mute</a></li><li class="solo"><a href="javascript://"><span></span></a></li></ul><span class="status"></span><audio index="'+i+'" container="'+containerID+'" color="'+randomColor+'" preload="auto" '+srcAttr+'="'+$(this).attr("url")+'"></audio><span class="track-name">'+$(this).attr("name")+'</span>'+($.browser.mozilla ? '<span class="color" style="background-color:'+randomColor+'"></span>':"")+'</li>');
+		}
 	});	
 	container.append('<span class="loader"></span>');
 	if(!preload) {
@@ -215,6 +222,7 @@ generateHtml = function(container) {
 players = {};
 
 initPlayer = function(containerID) {
+	
 	var container = $("#"+containerID);	
 	generateHtml(container);
 	
@@ -365,8 +373,22 @@ initPlayer = function(containerID) {
 		players[containerID].playButton.addClass("active");
 		$.each(players[containerID].tracks, function(){
 			this.play();
+			if (nomute == true) {
+				this.volume=0;
+			} else {
+				this.volume=1;
+			}			
 		});
 		players[containerID].playing=true;
+		if (nomute == true) {
+			// set volume to first track back to 1
+			players[containerID].firstTrack.volume = 1;
+			// 
+			players[containerID].firstTrack.parent().addClass("active");
+			
+		} else {
+			
+		}
 	});
 	
 	//LOAD
