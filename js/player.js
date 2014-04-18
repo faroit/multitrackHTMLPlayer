@@ -1,161 +1,3 @@
-//--------------------------------------------------------------------
-//FFT CODE
-//--------------------------------------------------------------------
-
-var nomute = true;
-
-var FFT = function (bufferSize, sampleRate) {
-        this.bufferSize = bufferSize;
-        this.sampleRate = sampleRate;
-        this.spectrum = new Float32Array(bufferSize / 2);
-        this.real = new Float32Array(bufferSize);
-        this.imag = new Float32Array(bufferSize);
-        this.reverseTable = new Uint32Array(bufferSize);
-        this.sinTable = new Float32Array(bufferSize);
-        this.cosTable = new Float32Array(bufferSize);
-
-        var limit = 1,
-            bit = bufferSize >> 1;
-
-        while (limit < bufferSize) {
-            for (var i = 0; i < limit; i++) {
-                this.reverseTable[i + limit] = this.reverseTable[i] + bit;
-            }
-
-            limit = limit << 1;
-            bit = bit >> 1;
-        }
-
-        for (var i = 0; i < bufferSize; i++) {
-            this.sinTable[i] = Math.sin(-Math.PI / i);
-            this.cosTable[i] = Math.cos(-Math.PI / i);
-        }
-    };
-
-FFT.prototype.forward = function (buffer) {
-    var bufferSize = this.bufferSize,
-        cosTable = this.cosTable,
-        sinTable = this.sinTable,
-        reverseTable = this.reverseTable,
-        real = this.real,
-        imag = this.imag,
-        spectrum = this.spectrum;
-
-    if (bufferSize !== buffer.length) {
-        throw "Supplied buffer is not the same size as defined FFT. FFT Size: " + bufferSize + " Buffer Size: " + buffer.length;
-    }
-
-    for (var i = 0; i < bufferSize; i++) {
-        real[i] = buffer[reverseTable[i]];
-        imag[i] = 0;
-    }
-
-    var halfSize = 1,
-        phaseShiftStepReal, phaseShiftStepImag, currentPhaseShiftReal, currentPhaseShiftImag, off, tr, ti, tmpReal, i;
-
-    while (halfSize < bufferSize) {
-        phaseShiftStepReal = cosTable[halfSize];
-        phaseShiftStepImag = sinTable[halfSize];
-        currentPhaseShiftReal = 1.0;
-        currentPhaseShiftImag = 0.0;
-
-        for (var fftStep = 0; fftStep < halfSize; fftStep++) {
-            i = fftStep;
-
-            while (i < bufferSize) {
-                off = i + halfSize;
-                tr = (currentPhaseShiftReal * real[off]) - (currentPhaseShiftImag * imag[off]);
-                ti = (currentPhaseShiftReal * imag[off]) + (currentPhaseShiftImag * real[off]);
-
-                real[off] = real[i] - tr;
-                imag[off] = imag[i] - ti;
-                real[i] += tr;
-                imag[i] += ti;
-
-                i += halfSize << 1;
-            }
-
-            tmpReal = currentPhaseShiftReal;
-            currentPhaseShiftReal = (tmpReal * phaseShiftStepReal) - (currentPhaseShiftImag * phaseShiftStepImag);
-            currentPhaseShiftImag = (tmpReal * phaseShiftStepImag) + (currentPhaseShiftImag * phaseShiftStepReal);
-        }
-
-        halfSize = halfSize << 1;
-    }
-
-    i = bufferSize / 2;
-    while (i--) {
-        spectrum[i] = 2 * Math.sqrt(real[i] * real[i] + imag[i] * imag[i]) / bufferSize;
-    }
-};
-
-//initFFT = function(event, that) {
-loadedMetaData = function(event) {
-	var that = $(event.currentTarget);
-	var myAudio = event.currentTarget;
-	
-	var containerID = that.attr("container");
-	var index = parseInt(that.attr("index"));
-	var canvas = players[containerID].canvas[0];
-    players[containerID].fft[index] = {
-    	channels : myAudio.mozChannels,
-	    rate : myAudio.mozSampleRate,
-	    frameBufferLength : myAudio.mozFrameBufferLength,
-	};
-	players[containerID].fft[index].fft = new FFT(players[containerID].fft[index].frameBufferLength / players[containerID].fft[index].channels, players[containerID].fft[index].rate);
-
-};
-initFFT = function(event) {
-	var that = $(event.currentTarget);
-	var myAudio = event.currentTarget;
-	var containerID = that.attr("container");
-
-	//exit if canvas is not visible
-	if(!players[containerID].canvasVisible) return; 
-
-	var index = parseInt(that.attr("index"));
-	var canvas = players[containerID].canvas[0];
-    players[containerID].fft[index].ctx = canvas.getContext('2d');
-	if(index==0) {
-		//tell that the canvas must be cleared
-		players[containerID].canvasCleared=false;
-	}
-	if(myAudio.volume==0) return;
-
-	var fb = event.frameBuffer,
-        t = event.time,
-        /* unused, but it's there */
-        signal = new Float32Array(fb.length / players[containerID].fft[index].channels),
-        magnitude;
-
-    for (var i = 0, fbl = players[containerID].fft[index].frameBufferLength / 2; i < fbl; i++) {
-        // Assuming interlaced stereo channels,
-        // need to split and merge into a stero-mix mono signal
-        signal[i] = (fb[2 * i] + fb[2 * i + 1]) / 2;
-    }
-
-    players[containerID].fft[index].fft.forward(signal);
-
-    // Clear the canvas before drawing spectrum
-    if(players[containerID].canvasCleared==false) {
-    	players[containerID].fft[index].ctx.clearRect(0, 0, canvas.width, canvas.height);
-    	players[containerID].canvasCleared = true;
-    }
-
-    players[containerID].fft[index].ctx.fillStyle =that.attr("color");  
-    
-    for (var i = 0; i < players[containerID].fft[index].fft.spectrum.length; i++) {
-        // multiply spectrum by a zoom value
-        magnitude = players[containerID].fft[index].fft.spectrum[i] * 4000;
-
-        // Draw rectangle bars for each frequency bin
-        players[containerID].fft[index].ctx.fillRect(i * 4, canvas.height, 3, -magnitude);
-    }
-};
-
-
-
-
 function get_random_color() {
 	var letters = '0123456789ABCDEF';
     var possibilities = letters.split('');
@@ -207,7 +49,7 @@ generateHtml = function(container) {
 	var containerTracks = container.find('.tracks');
 	audioTags.each(function(i){
 		var randomColor = get_random_color();
-		if (nomute == true) {
+		if (container.hasClass( "nomute" )) {
 			containerTracks.append('<li class="track"><ul class="control"><li class="solo"><a href="javascript://"><span></span></a></li></ul><span class="status"></span><audio index="'+i+'" container="'+containerID+'" color="'+randomColor+'" preload="auto" '+srcAttr+'="'+$(this).attr("url")+'"></audio><span class="track-name">'+$(this).attr("name")+'</span>'+($.browser.mozilla ? '<span class="color" style="background-color:'+randomColor+'"></span>':"")+'</li>');
 		} else {
 			containerTracks.append('<li class="track"><ul class="control"><li class="mute"><a href="javascript://">mute</a></li><li class="solo"><a href="javascript://"><span></span></a></li></ul><span class="status"></span><audio index="'+i+'" container="'+containerID+'" color="'+randomColor+'" preload="auto" '+srcAttr+'="'+$(this).attr("url")+'"></audio><span class="track-name">'+$(this).attr("name")+'</span>'+($.browser.mozilla ? '<span class="color" style="background-color:'+randomColor+'"></span>':"")+'</li>');
@@ -258,7 +100,6 @@ initPlayer = function(containerID) {
 		var that = $(this);
 		that.attr('container', containerID);
 		players[containerID].tracks.push(that[0]);
-		players[containerID].fft.push({});
 		//load track
 		that[0].load();
 		that[0].addEventListener("canplaythrough", function() {
@@ -269,13 +110,6 @@ initPlayer = function(containerID) {
 			container.trigger("error", i+1);
 		}, false);
 		that.attr("index", i);
-		/*that.bind('MozAudioAvailable', function(event, that) {
-			initFFT(event, that);
-		});*/
-		if($.browser.mozilla) {
-			that[0].addEventListener('loadedmetadata', loadedMetaData, false);
-			that[0].addEventListener('MozAudioAvailable', initFFT, false);
-		}
 	});
 	players[containerID].trackCount=players[containerID].tracks.length;
 	players[containerID].firstTrack = players[containerID].tracks[0];
@@ -286,6 +120,8 @@ initPlayer = function(containerID) {
 		$(this).addClass("error");
 		$(this).find('.track:nth-child('+i+')').addClass("error");
 	});
+	
+	
 	
 	//MUTE not active
 	//----------------------------------------------
@@ -360,7 +196,11 @@ initPlayer = function(containerID) {
 			if($(this).hasClass("mute"))
 				track.volume=0;
 			else
-				track.volume=1;
+				if (container.hasClass( "nomute" )) {
+					track.volume=0;
+				} else {
+					track.volume=1;
+				}
 		});
 		dad.removeClass("active");
 	});
@@ -373,22 +213,25 @@ initPlayer = function(containerID) {
 		players[containerID].playButton.addClass("active");
 		$.each(players[containerID].tracks, function(){
 			this.play();
-			if (nomute == true) {
+			if (container.hasClass( "nomute" )) {
+				// mute all tracks
 				this.volume=0;
+				// and lock them
+				var dad = $(this).parent();
+				dad.addClass("locked")
 			} else {
 				this.volume=1;
 			}			
 		});
 		players[containerID].playing=true;
-		if (nomute == true) {
+		if (container.hasClass( "nomute" )) {
 			// set volume to first track back to 1
-			players[containerID].firstTrack.volume = 1;
-			// 
-			players[containerID].firstTrack.parent().addClass("active");
-			
-		} else {
-			
-		}
+			players[containerID].firstTrack.volume = 1;		
+			var dad = $(players[containerID].firstTrack).parent();
+			dad.addClass("active");
+			dad.closest(".track").addClass("solo").removeClass("locked");
+			dad.find(".solo").addClass("active");
+		} 
 	});
 	
 	//LOAD
