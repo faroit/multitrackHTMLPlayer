@@ -91,7 +91,7 @@ body.high-graphics .css-transition-all, body.high-graphics .bkg-link, body.high-
 .bkg-picto, .control-list > li > a, .audio-container ul.tracks > li ul > li > a, .audio-container .main-control ul > li > a, .control-list > li.solo a span, .audio-container ul.tracks > li ul > li.solo a span, .audio-container .main-control ul > li.solo a span, .audio-container .loader, .audio-container .loading-link, .audio-container .status, .icon-expand, .icon-reduce { background: url("../i/bkgLowRes.png") no-repeat scroll 0 0 transparent; }
 
 .bkg-link-hover, .bkg-link:hover, .bkg-list li a:hover, .button:hover, .control-list > li > a:hover, .audio-container ul.tracks > li ul > li > a:hover, .audio-container .main-control ul > li > a:hover { border-color: #CCC; background-color: #DADADA; color: #444; }
-body.high-graphics .bkg-link-hover, body.high-graphics .bkg-link:hover, body.high-graphics .bkg-list li a:hover, .bkg-list li body.high-graphics a:hover, body.high-graphics .button:hover, body.high-graphics .control-list > li > a:hover, body.high-graphics .audio-container ul.tracks > li ul > li > a:hover, .audio-container ul.tracks > li body.high-graphics ul > li > a:hover, body.high-graphics .audio-container .main-control ul > li > a:hover, .audio-container .main-control body.high-graphics ul > li > a:hover { -webkit-box-shadow: 0 0 15px white; -moz-box-shadow: 0 0 15px white; box-shadow: 0 0 15px white; }
+body.high-graphics .bkg-link-hover, body.high-graphics .bkg-link:hover, body.high-graphics .bkg-list li a:hover, .bkg-list li body.high-graphics a:hover, body.high-graphics .button:hover, body.high-graphics .control-list > li > a:hover, body.high-graphics .audio-container ul.tracks > li ul > li > a:hover, .audio-container ul.tracks > li body.high-graphics ul > li > a:hover, body.high-graphics .audio-container .main-control ul > li > a:hover, .audio-container .main-control body.high-graphics ul > li > a:hover { -webkit-box-shadow: 0 0 15px white; -moz-box-shadow: 0 0 15px white; box-shadow: 0 0 15px white; background-color: #ED8C01;}
 
 .bkg-link, .bkg-list li a, .button, .control-list > li > a, .audio-container ul.tracks > li ul > li > a, .audio-container .main-control ul > li > a { color: #4b4b4b; background-color: white; border: 1px solid #CCC; }
 .bkg-link:visited, .bkg-list li a:visited, .button:visited, .control-list > li > a:visited, .audio-container ul.tracks > li ul > li > a:visited, .audio-container .main-control ul > li > a:visited { color: #4b4b4b; }
@@ -148,10 +148,8 @@ h2 { font-size: 1.3em; line-height: 1.3em; padding-left: 5px; }
 .audio-container ul.tracks > li:focus { color: #f4dbac; }
 .audio-container ul.tracks > li:hover { color: #f4dbac; }
 .audio-container ul.tracks > li:active { color: #f4dbac; }
-body.high-graphics .audio-container ul.tracks > li { -webkit-box-shadow: inset 0 0 15px #cccccc; -moz-box-shadow: inset 0 0 15px #cccccc; box-shadow: inset 0 0 15px #cccccc; }
 .audio-container ul.tracks > li:last-child { border-width: 1px; }
 .audio-container ul.tracks > li.playing { background-color: #2F2F2F; border-color: #363636 #111 #000 #111; }
-body.high-graphics .audio-container ul.tracks > li.playing { -webkit-box-shadow: inset 0 0 15px #222222; -moz-box-shadow: inset 0 0 15px #222222; box-shadow: inset 0 0 15px #222222; }
 .audio-container ul.tracks > li.locked li.mute a, .audio-container ul.tracks > li.solo li.mute a { opacity: 0.2; }
 .audio-container ul.tracks > li.locked li.solo a, .audio-container ul.tracks > li.solo li.solo a { background-color: #E2E2E2 !important; border-color: #E2E2E2 !important; }
 .audio-container ul.tracks > li .color { display: block; width: 20px; height: 100%; position: absolute; top: 0; right: 0; }
