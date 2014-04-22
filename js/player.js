@@ -115,6 +115,26 @@ initPlayer = function(containerID) {
 	players[containerID].firstTrack = players[containerID].tracks[0];
 	container.on("ready", function(){
 		$(this).addClass("ready");
+		$.each(players[containerID].tracks, function(){
+			if (container.hasClass( "nomute" )) {
+				// mute all tracks
+				this.volume=0;
+				// and lock them
+				var dad = $(this).parent();
+				dad.addClass("locked")
+			} else {
+				this.volume=1;
+			}			
+		});
+		if (container.hasClass( "nomute" )) {
+			// set volume to first track back to 1
+			players[containerID].firstTrack.volume = 1;		
+			var dad = $(players[containerID].firstTrack).parent();
+			dad.addClass("active");
+			dad.closest(".track").addClass("solo").removeClass("locked");
+			dad.find(".solo").addClass("active");
+		} 
+		
 	});
 	container.on("error", function(e,i){
 		$(this).addClass("error");
@@ -213,25 +233,9 @@ initPlayer = function(containerID) {
 		players[containerID].playButton.addClass("active");
 		$.each(players[containerID].tracks, function(){
 			this.play();
-			if (container.hasClass( "nomute" )) {
-				// mute all tracks
-				this.volume=0;
-				// and lock them
-				var dad = $(this).parent();
-				dad.addClass("locked")
-			} else {
-				this.volume=1;
-			}			
 		});
 		players[containerID].playing=true;
-		if (container.hasClass( "nomute" )) {
-			// set volume to first track back to 1
-			players[containerID].firstTrack.volume = 1;		
-			var dad = $(players[containerID].firstTrack).parent();
-			dad.addClass("active");
-			dad.closest(".track").addClass("solo").removeClass("locked");
-			dad.find(".solo").addClass("active");
-		} 
+		
 	});
 	
 	//LOAD
